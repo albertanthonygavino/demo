@@ -1,0 +1,39 @@
+#for syngenta crop challenge, predicting soybean yield
+
+setwd("~/Desktop/syngenta crop challenge 2016")
+
+crops <- read.csv("~/Desktop/syngenta crop challenge 2016/joey.csv")
+
+data=crops
+dim(data)
+
+
+#split data sets into train and test
+indexes = sample(1:nrow(data), size=0.4*nrow(data))
+
+test = data[indexes, ]
+dim(test)
+train = data[-indexes,]
+dim(train)
+
+library(ggplot2)
+library(party)
+library(randomForest)
+
+#random forest model with missing data removed
+model1 <- randomForest(YIELD ~ TEMP + PREC + SOLARAD+ SOILCLASS + CEC + ORGMATTER + PI + AREA, data = train, ntree=100, importance=TRUE, na.action=na.omit, do.trace=TRUE)
+
+#plot importance
+
+plot(model1, log="y")
+varImpPlot(model1,type=1)
+(VI_F=importance(model1))
+
+
+# submit prediction
+prediction <- predict(model1, test)
+write.csv(prediction, file = "SAMPLE_DATA.csv", row.names=TRUE)
+
+
+
+
